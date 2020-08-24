@@ -1,0 +1,40 @@
+<launch>
+
+  <arg name = "map_file" default = "$(find my_robot)/maps/map.yaml"/>
+
+  <node name = "map_server" pkg = "map_server" type = "map_server" args = "$(arg map_file)"/>
+
+  <node name = "amcl" pkg = "amcl" type = "amcl" output = "screen">
+    <remap from = "scan" to = "my_robot/laser/scan"/>
+    <param name = "odom_frame_id" value = "odom"/>
+    <param name = "odom_model_type" value = "diff-corrected"/>
+    <param name = "base_frame_id" value = "robot_footprint" />
+    <param name = "global_frame_id" value = "map"/>
+    <param name = "update_min_d" value = "0.4" />
+    <param name = "laser_sigma_hit" value = "0.1" />
+    <param name = "laser_z_rand" value = "0.05" />
+    <param name = "laser_likelihood_max_distance" value = "4.0" />
+    <param name = "laser_z_hit" value = "0.95" />
+    <param name = "min_particles" value = "100" />
+    <param name = "max_particles" value = "500" />
+    <param name = "odom_alpha1" value = "0.25" />
+    <param name = "odom_alpha2" value = "0.25" />
+    <param name = "odom_alhpa3" value = "0.25" />
+    <param name = "odom_alpha4" value = "0.25" />
+  
+
+    <param name = "initial_pose_x" value = "-2"/>
+    <param name = "initial_pose_y" value = "2.925"/>
+  </node>
+
+  <node name = "move_base" pkg = "move_base" type = "move_base" respawn = "false" output = "screen">
+    <remap from = "scan" to = "my_robot/laser/scan"/>
+    <param name = "base_global_planner" value = "navfn/NavfnROS"/>
+    <param name = "base_local_planner" value = "base_local_planner/TrajectoryPlannerROS"/>
+    <rosparam file = "$(find my_robot)/launch/config/costmap_common_params.yaml" command = "load" ns = "global_costmap"/>
+    <rosparam file = "$(find my_robot)/launch/config/costmap_common_params.yaml" command = "load" ns = "local_costmap"/>
+    <rosparam file = "$(find my_robot)/launch/config/local_costmap_params.yaml" command = "load" />
+    <rosparam file = "$(find my_robot)/launch/config/global_costmap_params.yaml" command = "load" />
+    <rosparam file = "$(find my_robot)/launch/config/base_local_planner_params.yaml" command = "load" />
+  </node>
+</launch>
